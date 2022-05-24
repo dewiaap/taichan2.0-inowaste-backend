@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 const user = {
     getAllUser: async () => {
         try {
-            let res = await fetch(`${process.env.SUPABASE_URL}/taichan_user?select=*,level:taichan_level(level,id_level)`, {
+            let res = await fetch(`${process.env.SUPABASE_URL}/taichan_user?select=*,level:taichan_level(level,id_level), detail_user:taichan_detail_user(*, id_user), galeri:taichan_galeri(*, id_user)`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ const user = {
     getUserByCol: async ({ column, value }) => {
         try {
             const params = ["id_level", "id_user"].includes(column) ? `${column}=eq.${value}` : `${column}=ilike.%25${value}%25`
-            let res = await fetch(`${process.env.SUPABASE_URL}/taichan_user?select=*,level:taichan_level(level, id_level)&${params}`, {
+            let res = await fetch(`${process.env.SUPABASE_URL}/taichan_user?select=*,level:taichan_level(level, id_level), detail_user:taichan_detail_user(*, id_user), galeri:taichan_galeri(*, id_user)&${params}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -65,19 +65,45 @@ const user = {
     },
     addUser: async (data) => {
         try {
-            const password = data.password
-            delete data.password
-            const salt = await SaltPass(password)
-            data.password = salt
-            await fetch(`${process.env.SUPABASE_URL}/taichan_user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.SUPABASE_API_KEY}`,
-                    'apikey': process.env.SUPABASE_API_KEY
-                },
-                body: JSON.stringify(data)
-            })
+            let check = await user.getUserByCol({ column: 'username', value: data.username })
+            console.log(check)
+            if (check.data.length > 0) {
+                return { status: 'err', msg: 'username sudah digunakan' }
+            }else{
+                const password = data.password
+                delete data.password
+                const salt = await SaltPass(password)
+                data.password = salt
+                let res = await fetch(`${process.env.SUPABASE_URL}/taichan_user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.SUPABASE_API_KEY}`,
+                        'apikey': process.env.SUPABASE_API_KEY,
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                })
+                if(data.id_level === "1"){
+                    res = await res.json();
+                    console.log(res)
+                    const detail_user = {
+                        "id_user" : res[0].id_user,
+                        "deskripsi" : "",
+                        "liter" : 0,
+                        "harga" : 0
+                    }
+                    await fetch(`${process.env.SUPABASE_URL}/taichan_detail_user`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${process.env.SUPABASE_API_KEY}`,
+                            'apikey': process.env.SUPABASE_API_KEY,
+                        },
+                        body: JSON.stringify(detail_user)
+                    })
+                }
+            }
             return { status: 'ok', msg: 'success add user' }
         } catch (err) {
             return { status: 'err', msg: err }
@@ -95,6 +121,22 @@ const user = {
                 body: JSON.stringify(data)
             })
             return { status: 'ok', msg: 'success update user' }
+        } catch (err) {
+            return { status: 'err', msg: err }
+        }
+    },
+    updateDetailUser: async (data, { id_user }) => {
+        try {
+            await fetch(`${process.env.SUPABASE_URL}/taichan_detail_user?id_user=eq.${id_user}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.SUPABASE_API_KEY}`,
+                    'apikey': process.env.SUPABASE_API_KEY
+                },
+                body: JSON.stringify(data)
+            })
+            return { status: 'ok', msg: 'success update detail user' }
         } catch (err) {
             return { status: 'err', msg: err }
         }

@@ -30,6 +30,20 @@ const voucher = {
             error(res, err)
         })
     },
+    login: async (req, res) => {
+        model.login(req.body)
+        .then(result => {
+            if(result.status == "ok") {
+                success(res, result.data)
+            }
+            else{
+                error(res, result.msg)
+            }
+        })
+        .catch(err=>{
+            error(res, err)
+        })
+    },
     addVoucher: async (req, res) => {
         model.addVoucher(req.body)
         .then(result => {

@@ -1,9 +1,9 @@
-const model = require('../models/user.model');
+const model = require('../models/penukaran.model');
 const {success, error} = require('../constants/result');
 
-const user = {
-    getAllUser: async (req, res) => {
-        model.getAllUser()
+const penukaran = {
+    getAllPenukaran: async (req, res) => {
+        model.getAllPenukaran()
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.data)
@@ -16,8 +16,8 @@ const user = {
             error(res, err)
         })
     },
-    getUserByCol: async (req, res) => {
-        model.getUserByCol(req.params)
+    getPenukaranByCol: async (req, res) => {
+        model.getPenukaranByCol(req.params)
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.data)
@@ -44,8 +44,8 @@ const user = {
             error(res, err)
         })
     },
-    addUser: async (req, res) => {
-        model.addUser(req.body)
+    addPenukaran: async (req, res) => {
+        model.addPenukaran(req.body)
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.msg)
@@ -58,8 +58,8 @@ const user = {
             error(res, err)
         })
     },
-    updateUser: async (req, res) => {
-        model.updateUser(req.body, req.params)
+    updatePenukaran: async (req, res) => {
+        model.updatePenukaran(req.body, req.params)
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.msg)
@@ -72,22 +72,8 @@ const user = {
             error(res, err)
         })
     },
-    updateDetailUser: async (req, res) => {
-        model.updateDetailUser(req.body, req.params)
-        .then(result => {
-            if(result.status == "ok") {
-                success(res, result.msg)
-            }
-            else{
-                error(res, result.msg)
-            }
-        })
-        .catch(err=>{
-            error(res, err)
-        })
-    },
-    deleteUser: async (req, res) => {
-        model.deleteUser(req.params)
+    deletePenukaran: async (req, res) => {
+        model.deletePenukaran(req.params)
             .then(result => {
                 if (result.status == "ok") {
                     success(res, result.msg)
@@ -102,4 +88,4 @@ const user = {
     }
 }
 
-module.exports = user
+module.exports = penukaran

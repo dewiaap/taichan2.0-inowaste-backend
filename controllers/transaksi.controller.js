@@ -1,9 +1,9 @@
-const model = require('../models/user.model');
+const model = require('../models/transaksi.model');
 const {success, error} = require('../constants/result');
 
-const user = {
-    getAllUser: async (req, res) => {
-        model.getAllUser()
+const transaksi = {
+    getAllTransaksi: async (req, res) => {
+        model.getAllTransaksi()
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.data)
@@ -16,8 +16,8 @@ const user = {
             error(res, err)
         })
     },
-    getUserByCol: async (req, res) => {
-        model.getUserByCol(req.params)
+    getTransaksiByCol: async (req, res) => {
+        model.getTransaksiByCol(req.params)
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.data)
@@ -44,8 +44,8 @@ const user = {
             error(res, err)
         })
     },
-    addUser: async (req, res) => {
-        model.addUser(req.body)
+    addTransaksi: async (req, res) => {
+        model.addTransaksi(req.body)
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.msg)
@@ -58,8 +58,8 @@ const user = {
             error(res, err)
         })
     },
-    updateUser: async (req, res) => {
-        model.updateUser(req.body, req.params)
+    addStatusTransaksi: async (req, res) => {
+        model.addStatusTransaksi(req.body)
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.msg)
@@ -72,8 +72,8 @@ const user = {
             error(res, err)
         })
     },
-    updateDetailUser: async (req, res) => {
-        model.updateDetailUser(req.body, req.params)
+    updateTransaksi: async (req, res) => {
+        model.updateTransaksi(req.body, req.params)
         .then(result => {
             if(result.status == "ok") {
                 success(res, result.msg)
@@ -86,8 +86,8 @@ const user = {
             error(res, err)
         })
     },
-    deleteUser: async (req, res) => {
-        model.deleteUser(req.params)
+    deleteTransaksi: async (req, res) => {
+        model.deleteTransaksi(req.params)
             .then(result => {
                 if (result.status == "ok") {
                     success(res, result.msg)
@@ -102,4 +102,4 @@ const user = {
     }
 }
 
-module.exports = user
+module.exports = transaksi
