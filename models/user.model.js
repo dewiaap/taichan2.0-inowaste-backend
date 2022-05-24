@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 const user = {
     getAllUser: async () => {
         try {
-            let res = await fetch(`${process.env.SUPABASE_URL}/taichan_user?select=*,level:taichan_level(level, id_level)`, {
+            let res = await fetch(`${process.env.SUPABASE_URL}/taichan_user?select=*,level:taichan_level(level,id_level)`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
