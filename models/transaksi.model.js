@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const user = require('./user.model');
 
 const transaksi = {
     getAllTransaksi: async () => {
@@ -19,7 +20,7 @@ const transaksi = {
     },
     getTransaksiByCol: async ({ column, value }) => {
         try {
-            const params = ["id_transaksi"].includes(column) ? `${column}=eq.${value}` : `${column}=ilike.%25${value}%25`
+            const params = ["id_transaksi", "id_user"].includes(column) ? `${column}=eq.${value}` : `${column}=ilike.%25${value}%25`
             let res = await fetch(`${process.env.SUPABASE_URL}/taichan_transaksi?select=*, mitra:taichan_user!taichan_transaksi_id_mitra_fkey(*, id_user), user:taichan_user!taichan_transaksi_id_user_fkey(*, id_user)&${params}`, {
                 method: 'GET',
                 headers: {
@@ -78,8 +79,30 @@ const transaksi = {
                 },
                 body: JSON.stringify(data)
             })
+            if(data.status.toLowerCase() == "minyak diterima"){
+                let trx = await transaksi.getTransaksiByCol({ column: "id_transaksi", value: data.id_transaksi })
+                console.log(trx)
+                if(trx.status === "ok"){
+                    trx = trx.data[0]
+                    let users = await user.getUserByCol({ column: "id_user", value: trx.id_user })
+                    let mitra = await user.getUserByCol({ column: "id_user", value: trx.id_mitra })
+                    users = users.data[0]
+                    mitra = mitra.data[0]
+                    let new_data = {"poin" : (users.poin + (trx.liter*mitra.poin))}
+                    await fetch(`${process.env.SUPABASE_URL}/taichan_user?id_user=eq.${trx.id_user}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${process.env.SUPABASE_API_KEY}`,
+                            'apikey': process.env.SUPABASE_API_KEY
+                        },
+                        body: JSON.stringify(new_data)
+                    })
+                }
+            }
             return { status: 'ok', msg: 'success add status transaksi' }
         } catch (err) {
+            console.log(err)
             return { status: 'err', msg: err }
         }
     },
